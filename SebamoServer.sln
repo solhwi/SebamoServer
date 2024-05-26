@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SebamoServer", "SebamoServer\SebamoServer.csproj", "{4BC070E2-7550-4690-A1F4-B69E136B3798}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SebamoServer", "SebamoServer\SebamoServer.csproj", "{4BC070E2-7550-4690-A1F4-B69E136B3798}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotClient", "BotClient\BotClient.csproj", "{FDE4C6DE-43AF-460F-AD86-CAB92C53E3FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{4BC070E2-7550-4690-A1F4-B69E136B3798}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BC070E2-7550-4690-A1F4-B69E136B3798}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BC070E2-7550-4690-A1F4-B69E136B3798}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDE4C6DE-43AF-460F-AD86-CAB92C53E3FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDE4C6DE-43AF-460F-AD86-CAB92C53E3FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDE4C6DE-43AF-460F-AD86-CAB92C53E3FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDE4C6DE-43AF-460F-AD86-CAB92C53E3FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
