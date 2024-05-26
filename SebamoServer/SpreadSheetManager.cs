@@ -21,12 +21,37 @@ namespace SebamoServer
 		public int weeklyPoint;
 		public int totalPoint;
 		public int penaltyFee;
+
+		public const int MaxWeeklyPoint = 4;
+
+		public bool AddWeeklyPoint(int point)
+		{
+			if (MaxWeeklyPoint < weeklyPoint + point)
+				return false;
+
+			weeklyPoint += point;
+			return true;
+		}
+
+		public SebamoData Clone()
+		{
+			var newData = new SebamoData();
+
+			newData.name = name;
+			newData.weeklyPoint = weeklyPoint;
+			newData.totalPoint = totalPoint;
+			newData.penaltyFee = penaltyFee;
+
+			return newData;
+		}
 	}
 
 	internal class SpreadSheetManager
 	{
-		private readonly string BaseUrl = "https://docs.google.com/spreadsheets/d/1bc9q-co0H9_nmo-AuQtN5dYINCCB-Qv1o42yH3D3vTk/export?format=csv&gid=";
-
+		private readonly string BaseGetUrl = "https://docs.google.com/spreadsheets/d/1bc9q-co0H9_nmo-AuQtN5dYINCCB-Qv1o42yH3D3vTk/export?format=csv&gid=";
+		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbxpcRIBD4x6Z2kNSdLfqtaNH3qKTgztAYviaKXubHbilspTe6xHZDieSVMub-hsqOwiVw/exec";
+		private readonly string PostServerId = "AKfycbxpcRIBD4x6Z2kNSdLfqtaNH3qKTgztAYviaKXubHbilspTe6xHZDieSVMub-hsqOwiVw";
+		
 		private Dictionary<GroupType, string> groupGidDictionary = new Dictionary<GroupType, string>()
 		{
 			{ GroupType.Kahlua, "0"}, 
@@ -40,7 +65,36 @@ namespace SebamoServer
 			if (groupGidDictionary.TryGetValue(groupType, out string gid) == false)
 				return null;
 
-			return new Uri(BaseUrl + gid);
+			return new Uri(BaseGetUrl + gid);
+		}
+
+		public async Task UpdateSebamoData(GroupType groupType, SebamoData newSebamoData)
+		{
+			var parameters = MakeParameters(groupType, newSebamoData);	
+			var encodedContent = new FormUrlEncodedContent(parameters);
+
+			try
+			{
+				await client.PostAsync(BasePostUrl, encodedContent);
+			}
+			catch (HttpRequestException e)
+			{
+				Console.WriteLine("\nException Caught!");
+				Console.WriteLine("Message :{0} ", e.Message);
+			}
+		}
+
+		private Dictionary<string, string> MakeParameters(GroupType groupType, SebamoData newSebamoData)
+		{
+			var parameters = new Dictionary<string, string>();
+			
+			parameters.Add("groupType", groupType.ToString());
+			parameters.Add("name", newSebamoData.name);
+			parameters.Add("weeklyPoint", newSebamoData.weeklyPoint.ToString());
+			parameters.Add("totalPoint", newSebamoData.totalPoint.ToString());
+			parameters.Add("penaltyFee", newSebamoData.penaltyFee.ToString());
+
+			return parameters;
 		}
 
 		public async Task<Dictionary<string, SebamoData>> GetSebamoData(GroupType groupType)

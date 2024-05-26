@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SebamoServer
 {
@@ -151,7 +152,12 @@ namespace SebamoServer
 			if (request.Url == null)
 				return GroupType.None;
 
-			return Enum.Parse<GroupType>(request.Url.AbsolutePath);
+			string groupTypeStr = request.Url.AbsolutePath.Replace("/", "");
+
+			if (Enum.TryParse<GroupType>(groupTypeStr, out GroupType groupType) == false)
+				return GroupType.None;
+
+			return groupType;
 		}
 
 		private static IEnumerable<string> GetCommandParameters(HttpListenerRequest request)
@@ -163,7 +169,7 @@ namespace SebamoServer
 			foreach (var p1 in query.Split('&'))
 			{
 				string[] p2 = p1.Split('=');
-				yield return p2[1];
+				yield return HttpUtility.UrlDecode(p2[1], Encoding.UTF8);
 			}
 		}
 	}

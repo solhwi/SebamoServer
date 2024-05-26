@@ -23,14 +23,12 @@ namespace SebamoServer
 			{ "휴식", "{0} 님이 휴식을 취합니다. ({1}/{2})"},
 		};
 
-		private const int MaxWeeklyPoint = 4;
-
 		public async Task<string> MakeResponse(Command command)
 		{
-			return await UpdateAndReply(command);
+			return await ProcessResponse(command);
 		}
 
-		private async Task<string> UpdateAndReply(Command command)
+		private async Task<string> ProcessResponse(Command command)
 		{
 			string commandType = command.commandType;
 
@@ -46,7 +44,10 @@ namespace SebamoServer
 					if (command is NameCommand nameCommand)
 					{
 						var rowData = await GetRowSebamoData(nameCommand);
-						return string.Format(messageFormat, nameCommand.name, rowData.weeklyPoint, MaxWeeklyPoint);
+						rowData.AddWeeklyPoint(1);
+
+						await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
+						return string.Format(messageFormat, nameCommand.name, rowData.weeklyPoint, SebamoData.MaxWeeklyPoint);
 					}
 
 					break;	
@@ -69,7 +70,7 @@ namespace SebamoServer
 			if (sebamoDataDictionary.TryGetValue(command.name, out var value) == false)
 				return null;
 
-			return value;
+			return value.Clone();
 		}
 	}
 }
