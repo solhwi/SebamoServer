@@ -44,7 +44,7 @@ namespace SebamoServer
 	{
 		public string GetFormat()
 		{
-			return "{0} 님이 하루 치의 성취를 복원하였어요. ({1}/{2})";
+			return "{0} 님이 휴식을 취합니다. ({1}/{2})";
 		}
 
 		public string ReadMessage(SebamoData data)
