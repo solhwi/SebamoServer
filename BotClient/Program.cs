@@ -14,18 +14,18 @@ namespace BotClient
 		private static string serverBaseUrl = "http://localhost:8000";
 		private static HttpClient client = new HttpClient();
 
-		private static Dictionary<TestCaseType, string> testCaseDictionary = new Dictionary<TestCaseType, string>()
+		private static List<string> testCaseList = new List<string>()
 		{
-			{ TestCaseType.CompleteYujin, "/Kahlua?p1=완료&p2=유진" },
+			"/Kahlua?p1=완료&p2=유진",
 		};
 
 		public static async Task Main(string[] args)
 		{
-			if (testCaseDictionary.TryGetValue(TestCaseType.CompleteYujin, out string testParameters))
+			foreach(var testCase in testCaseList)
 			{
-				var message = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, serverBaseUrl + testParameters));
-				string str = await message.Content.ReadAsStringAsync();
-				Console.WriteLine(str);
+				var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, serverBaseUrl + testCase));
+				string message = await response.Content.ReadAsStringAsync();
+				Console.WriteLine(message);
 			}
 		}
 	}

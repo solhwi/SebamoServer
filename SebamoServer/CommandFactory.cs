@@ -8,53 +8,10 @@ using System.Web;
 
 namespace SebamoServer
 {
-	public class Command
-	{
-		public readonly GroupType groupType = GroupType.None;
-		public readonly string commandType = string.Empty;
-
-		public Command(GroupType groupType, string commandType)
-		{
-			this.groupType = groupType;
-			this.commandType = commandType;
-		}
-	}
-
-	public class NameCommand : Command
-	{
-		public readonly string name = string.Empty;
-
-		public NameCommand(GroupType groupType, string commandType, string name) : base(groupType, commandType)
-		{
-			this.name = name;
-		}
-	}
-
-	public class FeeCommand : Command
-	{
-		public readonly int fee = 0;
-
-		public FeeCommand(GroupType groupType, string commandType, int fee) : base(groupType, commandType)
-		{
-			this.fee = fee;
-		}
-	}
-
-	public class NameAndFeeCommand : NameCommand
-	{
-		public readonly int fee = 0;
-
-		public NameAndFeeCommand(GroupType groupType, string commandType, string name, int fee) : base(groupType, commandType, name)
-		{
-			this.fee = fee;
-		}
-	}
-
-
 	/// <summary>
 	/// 입력받은 http request에 맞는 커맨드를 생성해냄
 	/// ex. http://localhost.com:8000/Kaluha?p1=완료&p2=유진
-	/// </summary>
+	/// </summary>z
 	internal class CommandFactory
 	{
 		/// <summary>
@@ -80,21 +37,21 @@ namespace SebamoServer
 				return null;
 
 			// 1번 인자가 커맨드 타입
-			var commandType = commandParameters[0];
+			var commandType = GetCommandType(commandParameters[0]);
 
 			switch (commandType)
 			{
-				case "확인":
-				case "초기화":
-				case "도움말":
-				case "벌금초기화":
-				case "벌금현황":
-				case "한주끝":
+				case CommandType.Confirm:
+				case CommandType.ResetWeekly:
+				case CommandType.Help:
+				case CommandType.ResetFee:
+				case CommandType.ConfirmFee:
+				case CommandType.EndWeekly:
 					return new Command(groupType, commandType);
 
-				case "완료":
-				case "완료복원":
-				case "휴식":
+				case CommandType.Complete:
+				case CommandType.RollbackComplete:
+				case CommandType.Rest:
 
 					if (commandParameters.Length < 2)
 						return null;
@@ -106,7 +63,7 @@ namespace SebamoServer
 
 					return new NameCommand(groupType, commandType, name);
 
-				case "벌금사용":
+				case CommandType.UseFee:
 
 					if (commandParameters.Length < 2)
 						return null;
@@ -118,7 +75,7 @@ namespace SebamoServer
 
 					return new FeeCommand(groupType, commandType, fee);
 
-				case "송금":
+				case CommandType.SendMoney:
 
 					if (commandParameters.Length < 2)
 						return null;
@@ -135,6 +92,47 @@ namespace SebamoServer
 			}
 
 			return null;
+		}
+
+		private static CommandType GetCommandType(string commandType)
+		{
+			switch (commandType)
+			{
+				case "완료":
+					return CommandType.Complete;
+
+				case "완료복원":
+					return CommandType.RollbackComplete;
+
+				case "휴식":
+					return CommandType.Rest;
+
+				case "확인":
+					return CommandType.Confirm;
+
+				case "초기화":
+					return CommandType.ResetWeekly;
+
+				case "한주끝":
+					return CommandType.EndWeekly;
+
+				case "도움말":
+					return CommandType.Help;
+
+				case "송금":
+					return CommandType.SendMoney;
+
+				case "벌금현황":
+					return CommandType.ConfirmFee;
+
+				case "벌금사용":
+					return CommandType.UseFee;
+
+				case "벌금초기화":
+					return CommandType.ResetFee;
+			}
+
+			return CommandType.None;
 		}
 
 		private static bool IsInGroup(GroupType groupType, string name)

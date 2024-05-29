@@ -24,13 +24,25 @@ namespace SebamoServer
 
 		public const int MaxWeeklyPoint = 4;
 
-		public bool AddWeeklyPoint(int point)
+		public void AddWeeklyPoint(int point)
 		{
-			if (MaxWeeklyPoint < weeklyPoint + point)
-				return false;
+			SetWeeklyPoint(weeklyPoint + point);
+		}
 
-			weeklyPoint += point;
-			return true;
+		public void ResetWeeklyPoint()
+		{
+			SetWeeklyPoint(0);
+		}
+
+		public void SetWeeklyPoint(int point)
+		{
+			if (point < 0)
+				point = 0;
+
+			if (point > MaxWeeklyPoint)
+				point = MaxWeeklyPoint;
+
+			weeklyPoint = point;
 		}
 
 		public SebamoData Clone()
@@ -49,9 +61,7 @@ namespace SebamoServer
 	internal class SpreadSheetManager
 	{
 		private readonly string BaseGetUrl = "https://docs.google.com/spreadsheets/d/1bc9q-co0H9_nmo-AuQtN5dYINCCB-Qv1o42yH3D3vTk/export?format=csv&gid=";
-		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbxpcRIBD4x6Z2kNSdLfqtaNH3qKTgztAYviaKXubHbilspTe6xHZDieSVMub-hsqOwiVw/exec";
-		private readonly string PostServerId = "AKfycbxpcRIBD4x6Z2kNSdLfqtaNH3qKTgztAYviaKXubHbilspTe6xHZDieSVMub-hsqOwiVw";
-		
+		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbxxmr1HPLRyIWhLdTfxanfzZt4MT5LK1yRfByz7bT7qI3t2GO4F07_QeH4c4LSW7D7vyw/exec";
 		private Dictionary<GroupType, string> groupGidDictionary = new Dictionary<GroupType, string>()
 		{
 			{ GroupType.Kahlua, "0"}, 

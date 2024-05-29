@@ -7,53 +7,45 @@ using System.Threading.Tasks;
 namespace SebamoServer
 {
 	/// <summary>
-	/// 입력받은 커맨드에 적절한 데이터 변경과 메시지를 생성함
+	/// 입력받은 커맨드에 적절한 행동을 취하고 응답을 돌려줌
 	/// </summary>
 	internal class CommandExecutor
 	{
 		private SpreadSheetManager spreadSheetManager = new SpreadSheetManager();
 
-		/// <summary>
-		/// message config로 빼기
-		/// </summary>
-		private Dictionary<string, string> messageFormatDictionary = new Dictionary<string, string>()
+		private Dictionary<CommandType, Func<Command, Task<SebamoData>>> taskDictionary = null;
+		private Dictionary<string, SebamoData> cachedDataDictionary = new Dictionary<string, SebamoData>();
+
+		public CommandExecutor()
 		{
-			{ "완료", "{0} 님이 하루 치의 성취를 달성하였어요. ({1}/{2})"},
-			{ "완료복원", "{0} 님이 하루 치의 성취를 복원하였어요. ({1}/{2})"},
-			{ "휴식", "{0} 님이 휴식을 취합니다. ({1}/{2})"},
-		};
+			taskDictionary = new Dictionary<CommandType, Func<Command, Task<SebamoData>>>
+			{
+				{ CommandType.Complete, OnComplete },
+				{ CommandType.RollbackComplete, OnRollbackComplete },
+				{ CommandType.Rest, OnRest },
+				{ CommandType.ResetWeekly, OnResetWeekly },
+				{ CommandType.EndWeekly, OnEndWeekly },
+				{ CommandType.SendMoney, OnSendMoney },
+				{ CommandType.UseFee, OnUseFee },
+				{ CommandType.ResetFee, OnResetFee },
+			};
+		}
 
 		public async Task<string> MakeResponse(Command command)
 		{
+			cachedDataDictionary = await GetSebamoData(command);
 			return await ProcessResponse(command);
 		}
 
 		private async Task<string> ProcessResponse(Command command)
 		{
-			string commandType = command.commandType;
-
-			if (messageFormatDictionary.TryGetValue(commandType, out var messageFormat) == false)
-				return string.Empty;
-
-			switch (commandType)
+			SebamoData data = null;
+			if (taskDictionary.TryGetValue(command.commandType, out var doTask))
 			{
-				case "완료":
-				case "완료복원":
-				case "휴식":
-
-					if (command is NameCommand nameCommand)
-					{
-						var rowData = await GetRowSebamoData(nameCommand);
-						rowData.AddWeeklyPoint(1);
-
-						await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
-						return string.Format(messageFormat, nameCommand.name, rowData.weeklyPoint, SebamoData.MaxWeeklyPoint);
-					}
-
-					break;	
+				data = await doTask(command);
 			}
 
-			return string.Empty;
+			return MessageFactory.MakeMessage(command.commandType, cachedDataDictionary).ReadMessage(data);
 		}
 
 		private async Task<Dictionary<string, SebamoData>> GetSebamoData(Command command)
@@ -61,16 +53,88 @@ namespace SebamoServer
 			return await spreadSheetManager.GetSebamoData(command.groupType);
 		}
 
-		private async Task<SebamoData> GetRowSebamoData(NameCommand command)
+		private SebamoData GetRowSebamoData(NameCommand command)
 		{
-			var sebamoDataDictionary = await GetSebamoData(command);
-			if (sebamoDataDictionary == null)
-				return null;
-
-			if (sebamoDataDictionary.TryGetValue(command.name, out var value) == false)
+			if (cachedDataDictionary.TryGetValue(command.name, out var value) == false)
 				return null;
 
 			return value.Clone();
+		}
+
+		private async Task<SebamoData> OnComplete(Command command)
+		{
+			if (command is NameCommand nameCommand)
+			{
+				var sebamoData = GetRowSebamoData(nameCommand);
+				if (sebamoData != null)
+				{
+					sebamoData.AddWeeklyPoint(1);
+					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+				}
+				
+				return sebamoData;
+			}
+
+			return null;
+		}
+
+		private async Task<SebamoData> OnRollbackComplete(Command command)
+		{
+			if (command is NameCommand nameCommand)
+			{
+				var sebamoData = GetRowSebamoData(nameCommand);
+				if (sebamoData != null)
+				{
+					sebamoData.AddWeeklyPoint(-1);
+					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+				}
+
+				return sebamoData;
+			}
+
+			return null;
+		}
+
+		private async Task<SebamoData> OnRest(Command command)
+		{
+			if (command is NameCommand nameCommand)
+			{
+				var sebamoData = GetRowSebamoData(nameCommand);
+				if (sebamoData != null)
+				{
+					sebamoData.AddWeeklyPoint(SebamoData.MaxWeeklyPoint);
+					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+				}
+
+				return sebamoData;
+			}
+
+			return null;
+		}
+
+		private async Task<SebamoData> OnResetWeekly(Command command)
+		{
+			return null;
+		}
+
+		private async Task<SebamoData> OnEndWeekly(Command command)
+		{
+			return null;
+		}
+
+		private async Task<SebamoData> OnSendMoney(Command command)
+		{
+			return null;
+		}
+
+		private async Task<SebamoData> OnUseFee(Command command)
+		{
+			return null;
+		}
+
+		private async Task<SebamoData> OnResetFee(Command command)
+		{
+			return null;
 		}
 	}
 }
