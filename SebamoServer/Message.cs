@@ -22,7 +22,7 @@ namespace SebamoServer
 		public string ReadMessage(SebamoData data)
 		{
 			string format = GetFormat();
-			return string.Format(format, data.name, data.weeklyPoint, SebamoData.MaxWeeklyPoint);
+			return string.Format(format, data.name, data.weeklyPoint, Config.MaxWeeklyPoint);
 		}
 	}
 
@@ -36,7 +36,7 @@ namespace SebamoServer
 		public string ReadMessage(SebamoData data)
 		{
 			string format = GetFormat();
-			return string.Format(format, data.name, data.weeklyPoint, SebamoData.MaxWeeklyPoint);
+			return string.Format(format, data.name, data.weeklyPoint, Config.MaxWeeklyPoint);
 		}
 	}
 
@@ -50,7 +50,7 @@ namespace SebamoServer
 		public string ReadMessage(SebamoData data)
 		{
 			string format = GetFormat();
-			return string.Format(format, data.name, data.weeklyPoint, SebamoData.MaxWeeklyPoint);
+			return string.Format(format, data.name, data.weeklyPoint, Config.MaxWeeklyPoint);
 		}
 	}
 

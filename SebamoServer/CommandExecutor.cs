@@ -82,14 +82,14 @@ namespace SebamoServer
 		{
 			if (command is NameCommand nameCommand)
 			{
-				var sebamoData = GetRowSebamoData(nameCommand);
-				if (sebamoData != null)
+				var rowData = GetRowSebamoData(nameCommand);
+				if (rowData != null)
 				{
-					sebamoData.AddWeeklyPoint(-1);
-					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+					rowData.AddWeeklyPoint(-1);
+					await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
 				}
 
-				return sebamoData;
+				return rowData;
 			}
 
 			return null;
@@ -99,14 +99,14 @@ namespace SebamoServer
 		{
 			if (command is NameCommand nameCommand)
 			{
-				var sebamoData = GetRowSebamoData(nameCommand);
-				if (sebamoData != null)
+				var rowData = GetRowSebamoData(nameCommand);
+				if (rowData != null)
 				{
-					sebamoData.CompleteWeeklyPoint();
-					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+					rowData.CompleteWeeklyPoint();
+					await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
 				}
 
-				return sebamoData;
+				return rowData;
 			}
 
 			return null;
@@ -114,16 +114,58 @@ namespace SebamoServer
 
 		private async Task<SebamoData> OnResetWeekly(Command command)
 		{
+			if (cachedDataDictionary != null)
+			{
+				var newDataDictionary = new Dictionary<string, SebamoData>();
+				foreach (var sebamoData in cachedDataDictionary.Values)
+				{
+					var newSebamoData = sebamoData.Clone();
+					newSebamoData.ResetWeeklyPoint();
+
+					newDataDictionary.Add(newSebamoData.name, newSebamoData);
+				}
+
+				await spreadSheetManager.UpdateSebamoData(command.groupType, newDataDictionary);
+			}
+
 			return null;
 		}
 
 		private async Task<SebamoData> OnEndWeekly(Command command)
 		{
+			if (cachedDataDictionary != null)
+			{
+				var newDataDictionary = new Dictionary<string, SebamoData>();
+				foreach (var sebamoData in cachedDataDictionary.Values)
+				{
+					var newSebamoData = sebamoData.Clone();
+					newSebamoData.EndWeekly(command.groupType);
+
+					newDataDictionary.Add(newSebamoData.name, newSebamoData);
+				}
+
+				await spreadSheetManager.UpdateSebamoData(command.groupType, newDataDictionary);
+			}
+
 			return null;
 		}
 
 		private async Task<SebamoData> OnSendMoney(Command command)
 		{
+			if (command is NameAndFeeCommand nameAndFeeCommand)
+			{
+				var rowData = GetRowSebamoData(nameAndFeeCommand);
+				if (rowData != null)
+				{
+					var newSebamoData = rowData.Clone();
+					newSebamoData.SendMoney(nameAndFeeCommand.fee);
+
+					await spreadSheetManager.UpdateSebamoData(command.groupType, newSebamoData);
+
+					return newSebamoData;
+				}
+			}
+
 			return null;
 		}
 

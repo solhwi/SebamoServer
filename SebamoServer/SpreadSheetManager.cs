@@ -7,10 +7,25 @@ using System.Net.Http.Headers;
 using System.Net;
 using System.Text.Json.Serialization;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Newtonsoft.Json;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace SebamoServer
 {
+	public class Config
+	{
+		public const int MaxWeeklyPoint = 4;
+
+		public static readonly Dictionary<GroupType, int[]> FeeDictionary = new Dictionary<GroupType, int[]>()
+		{
+			{ GroupType.Kahlua, new int[] { 3000, 5000, 10000, 30000 } },
+			{ GroupType.Exp, new int[] { 1000, 3000, 5000, 10000 } }
+		};
+
+	}
+
 	public enum GroupType
 	{
 		None = -1,
@@ -21,8 +36,8 @@ namespace SebamoServer
 	[Serializable()]
 	public class EncodedSebamoData
 	{
-        public string groupType;
-        public List<SebamoData> datas = new List<SebamoData>();
+		public string groupType;
+		public List<SebamoData> datas = new List<SebamoData>();
 
 		public EncodedSebamoData(GroupType groupType, SebamoData data)
 		{
@@ -37,15 +52,13 @@ namespace SebamoServer
 		}
     }
 
-    [Serializable()]
-    public class SebamoData
+	[Serializable()]
+	public class SebamoData
 	{
 		public string name;
 		public int weeklyPoint;
 		public int totalPoint;
 		public int penaltyFee;
-
-		public const int MaxWeeklyPoint = 4;
 
 		public void AddWeeklyPoint(int point)
 		{
@@ -57,9 +70,42 @@ namespace SebamoServer
 			SetWeeklyPoint(0);
 		}
 
+		/// <summary>
+		/// 1. 모자란 위클리 포인트만큼 패널티 요금에 더함
+		/// 2. 현재 위클리 포인트를 토탈 포인트로 옮김
+		/// </summary>
+		public void EndWeekly(GroupType groupType)
+		{
+			int currentWeeklyPoint = weeklyPoint;
+			if (currentWeeklyPoint < Config.MaxWeeklyPoint)
+			{
+				int penaltyPoint = Config.MaxWeeklyPoint - currentWeeklyPoint;
+
+				if (Config.FeeDictionary.TryGetValue(groupType, out int[] feeArray))
+				{
+					penaltyFee += feeArray[penaltyPoint];
+				}
+			}
+
+			totalPoint += currentWeeklyPoint;
+			weeklyPoint = 0;
+		}
+
+		public void SendMoney(int money)
+		{
+			if (penaltyFee - money > 0)
+			{
+				penaltyFee -= money;
+			}
+			else
+			{
+				penaltyFee = 0;
+			}
+		}
+
 		public void CompleteWeeklyPoint()
 		{
-            SetWeeklyPoint(MaxWeeklyPoint);
+            SetWeeklyPoint(Config.MaxWeeklyPoint);
         }
 
 		public void SetWeeklyPoint(int point)
@@ -67,8 +113,8 @@ namespace SebamoServer
 			if (point < 0)
 				point = 0;
 
-			if (point > MaxWeeklyPoint)
-				point = MaxWeeklyPoint;
+			if (point > Config.MaxWeeklyPoint)
+				point = Config.MaxWeeklyPoint;
 
 			weeklyPoint = point;
 		}
@@ -122,7 +168,14 @@ namespace SebamoServer
 		{
             try
             {
-                await client.PostAsJsonAsync(BasePostUrl, encodedData);
+				string jsonData = JsonConvert.SerializeObject(encodedData, Formatting.None);
+
+				var setting = new JsonSerializerOptions()
+				{
+					Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+				};
+
+				await client.PostAsJsonAsync(BasePostUrl, jsonData, setting);
             }
             catch (HttpRequestException e)
             {
