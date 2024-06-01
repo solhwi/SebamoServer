@@ -44,16 +44,6 @@ namespace SebamoServer
 		}
 	}
 
-	public class FeeCommand : Command
-	{
-		public readonly int fee = 0;
-
-		public FeeCommand(GroupType groupType, CommandType commandType, int fee) : base(groupType, commandType)
-		{
-			this.fee = fee;
-		}
-	}
-
 	public class NameAndFeeCommand : NameCommand
 	{
 		public readonly int fee = 0;

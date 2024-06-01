@@ -171,11 +171,39 @@ namespace SebamoServer
 
 		private async Task<SebamoData> OnUseFee(Command command)
 		{
+			if (command is NameAndFeeCommand nameAndFeeCommand)
+			{
+				var rowData = GetRowSebamoData(nameAndFeeCommand);
+				if (rowData != null)
+				{
+					var newSebamoData = rowData.Clone();
+					newSebamoData.UsePenaltyFee(nameAndFeeCommand.fee);
+
+					await spreadSheetManager.UpdateSebamoData(command.groupType, newSebamoData);
+
+					return newSebamoData;
+				}
+			}
+
 			return null;
 		}
 
 		private async Task<SebamoData> OnResetFee(Command command)
 		{
+			if (cachedDataDictionary != null)
+			{
+				var newDataDictionary = new Dictionary<string, SebamoData>();
+				foreach (var sebamoData in cachedDataDictionary.Values)
+				{
+					var newSebamoData = sebamoData.Clone();
+					newSebamoData.ResetPenaltyFee();
+
+					newDataDictionary.Add(newSebamoData.name, newSebamoData);
+				}
+
+				await spreadSheetManager.UpdateSebamoData(command.groupType, newDataDictionary);
+			}
+
 			return null;
 		}
 	}

@@ -14,18 +14,6 @@ using System.Text.Unicode;
 
 namespace SebamoServer
 {
-	public class Config
-	{
-		public const int MaxWeeklyPoint = 4;
-
-		public static readonly Dictionary<GroupType, int[]> FeeDictionary = new Dictionary<GroupType, int[]>()
-		{
-			{ GroupType.Kahlua, new int[] { 3000, 5000, 10000, 30000 } },
-			{ GroupType.Exp, new int[] { 1000, 3000, 5000, 10000 } }
-		};
-
-	}
-
 	public enum GroupType
 	{
 		None = -1,
@@ -59,6 +47,8 @@ namespace SebamoServer
 		public int weeklyPoint;
 		public int totalPoint;
 		public int penaltyFee;
+		public int totalPenaltyFee;
+		public int usedPenaltyFee;
 
 		public void AddWeeklyPoint(int point)
 		{
@@ -80,11 +70,10 @@ namespace SebamoServer
 			if (currentWeeklyPoint < Config.MaxWeeklyPoint)
 			{
 				int penaltyPoint = Config.MaxWeeklyPoint - currentWeeklyPoint;
+				int addFee = Config.GetPenaltyFee(groupType, penaltyPoint);
 
-				if (Config.FeeDictionary.TryGetValue(groupType, out int[] feeArray))
-				{
-					penaltyFee += feeArray[penaltyPoint];
-				}
+				penaltyFee += addFee;
+				totalPenaltyFee += addFee;
 			}
 
 			totalPoint += currentWeeklyPoint;
@@ -101,6 +90,18 @@ namespace SebamoServer
 			{
 				penaltyFee = 0;
 			}
+		}
+
+		public void ResetPenaltyFee()
+		{
+			penaltyFee = 0;
+			totalPenaltyFee = 0;
+			usedPenaltyFee = 0;
+		}
+
+		public void UsePenaltyFee(int fee)
+		{
+			usedPenaltyFee += fee;
 		}
 
 		public void CompleteWeeklyPoint()
@@ -127,6 +128,8 @@ namespace SebamoServer
 			newData.weeklyPoint = weeklyPoint;
 			newData.totalPoint = totalPoint;
 			newData.penaltyFee = penaltyFee;
+			newData.totalPenaltyFee = totalPenaltyFee;
+			newData.usedPenaltyFee = usedPenaltyFee;
 
 			return newData;
 		}
@@ -227,6 +230,8 @@ namespace SebamoServer
 				data.weeklyPoint = (int)sheet["weeklyPoint"];
 				data.totalPoint = (int)sheet["totalPoint"];
 				data.penaltyFee = (int)sheet["penaltyFee"];
+				data.totalPenaltyFee = (int)sheet["totalPenaltyFee"];
+				data.usedPenaltyFee = (int)sheet["usedPenaltyFee"];
 
 				sebamoDictionary.Add(data.name, data);
 			}

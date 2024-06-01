@@ -14,15 +14,6 @@ namespace SebamoServer
 	/// </summary>z
 	internal class CommandFactory
 	{
-		/// <summary>
-		/// 요기 group config로 빼기
-		/// </summary>
-		private static Dictionary<GroupType, string[]> groupMemberNameDictionary = new Dictionary<GroupType, string[]>()
-		{ 
-			{ GroupType.Kahlua, new string[] {"유진", "민준", "주훈", "나경", "솔휘"} },
-			{ GroupType.Exp, new string[] {"동현", "상훈", "지홍", "지현", "솔휘", "강욱"} },
-		};
-
 		public static Command MakeCommand(HttpListenerRequest request)
 		{
 			var commandGroupType = GetCommandGroupType(request);
@@ -64,17 +55,6 @@ namespace SebamoServer
 					return new NameCommand(groupType, commandType, name);
 
 				case CommandType.UseFee:
-
-					if (commandParameters.Length < 2)
-						return null;
-
-					string feeStr = commandParameters[1];
-
-					if (int.TryParse(feeStr, out int fee) == false)
-						return null;
-
-					return new FeeCommand(groupType, commandType, fee);
-
 				case CommandType.SendMoney:
 
 					if (commandParameters.Length < 2)
@@ -137,12 +117,7 @@ namespace SebamoServer
 
 		private static bool IsInGroup(GroupType groupType, string name)
 		{
-			if (groupMemberNameDictionary.TryGetValue(groupType, out string[] names))
-			{
-				return names.Contains(name);
-			}
-
-			return false;
+			return Config.IsInGroup(groupType, name);
 		}
 
 		private static GroupType GetCommandGroupType(HttpListenerRequest request) 
