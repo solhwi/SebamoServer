@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Net;
+using System.Text.Json.Serialization;
+using System.Net.Http.Json;
+using Newtonsoft.Json;
 
 namespace SebamoServer
 {
@@ -15,7 +18,27 @@ namespace SebamoServer
 		Exp = 1,
 	}
 
-	public class SebamoData
+	[Serializable()]
+	public class EncodedSebamoData
+	{
+        public string groupType;
+        public List<SebamoData> datas = new List<SebamoData>();
+
+		public EncodedSebamoData(GroupType groupType, SebamoData data)
+		{
+            this.groupType = groupType.ToString();
+			this.datas.Add(data.Clone());
+        }
+
+		public EncodedSebamoData(GroupType groupType, Dictionary<string, SebamoData> datas)
+		{
+			this.groupType = groupType.ToString();
+			this.datas = datas.Values.ToList();
+		}
+    }
+
+    [Serializable()]
+    public class SebamoData
 	{
 		public string name;
 		public int weeklyPoint;
@@ -33,6 +56,11 @@ namespace SebamoServer
 		{
 			SetWeeklyPoint(0);
 		}
+
+		public void CompleteWeeklyPoint()
+		{
+            SetWeeklyPoint(MaxWeeklyPoint);
+        }
 
 		public void SetWeeklyPoint(int point)
 		{
@@ -61,7 +89,7 @@ namespace SebamoServer
 	internal class SpreadSheetManager
 	{
 		private readonly string BaseGetUrl = "https://docs.google.com/spreadsheets/d/1bc9q-co0H9_nmo-AuQtN5dYINCCB-Qv1o42yH3D3vTk/export?format=csv&gid=";
-		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbxxmr1HPLRyIWhLdTfxanfzZt4MT5LK1yRfByz7bT7qI3t2GO4F07_QeH4c4LSW7D7vyw/exec";
+		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbzal9aux1EKgIC0d1hYc4FVYF_8Hd7rVkuz3LlErwLc8QReSj-HLhMtDQpqRMu6H6Sdvw/exec";
 		private Dictionary<GroupType, string> groupGidDictionary = new Dictionary<GroupType, string>()
 		{
 			{ GroupType.Kahlua, "0"}, 
@@ -80,34 +108,40 @@ namespace SebamoServer
 
 		public async Task UpdateSebamoData(GroupType groupType, SebamoData newSebamoData)
 		{
-			var parameters = MakeParameters(groupType, newSebamoData);	
-			var encodedContent = new FormUrlEncodedContent(parameters);
+			var parameter = MakeParameter(groupType, newSebamoData);
+            await PostSebamoData(parameter);
+        }
 
-			try
-			{
-				await client.PostAsync(BasePostUrl, encodedContent);
-			}
-			catch (HttpRequestException e)
-			{
-				Console.WriteLine("\nException Caught!");
-				Console.WriteLine("Message :{0} ", e.Message);
-			}
-		}
-
-		private Dictionary<string, string> MakeParameters(GroupType groupType, SebamoData newSebamoData)
+		public async Task UpdateSebamoData(GroupType groupType, Dictionary<string, SebamoData> newSebamoDataDictionary)
 		{
-			var parameters = new Dictionary<string, string>();
-			
-			parameters.Add("groupType", groupType.ToString());
-			parameters.Add("name", newSebamoData.name);
-			parameters.Add("weeklyPoint", newSebamoData.weeklyPoint.ToString());
-			parameters.Add("totalPoint", newSebamoData.totalPoint.ToString());
-			parameters.Add("penaltyFee", newSebamoData.penaltyFee.ToString());
-
-			return parameters;
+			var parameter = MakeParameter(groupType, newSebamoDataDictionary);
+			await PostSebamoData(parameter);
 		}
 
-		public async Task<Dictionary<string, SebamoData>> GetSebamoData(GroupType groupType)
+		private async Task PostSebamoData(EncodedSebamoData encodedData)
+		{
+            try
+            {
+                await client.PostAsJsonAsync(BasePostUrl, encodedData);
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine("\nException Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+            }
+        }
+
+        private EncodedSebamoData MakeParameter(GroupType groupType, SebamoData newSebamoData)
+		{
+			return new EncodedSebamoData(groupType, newSebamoData);
+		}
+
+        private EncodedSebamoData MakeParameter(GroupType groupType, Dictionary<string, SebamoData> newSebamoDataDictionary)
+        {
+            return new EncodedSebamoData(groupType, newSebamoDataDictionary);
+        }
+
+        public async Task<Dictionary<string, SebamoData>> GetSebamoData(GroupType groupType)
 		{
 			try
 			{

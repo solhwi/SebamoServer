@@ -102,7 +102,7 @@ namespace SebamoServer
 				var sebamoData = GetRowSebamoData(nameCommand);
 				if (sebamoData != null)
 				{
-					sebamoData.AddWeeklyPoint(SebamoData.MaxWeeklyPoint);
+					sebamoData.CompleteWeeklyPoint();
 					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
 				}
 
