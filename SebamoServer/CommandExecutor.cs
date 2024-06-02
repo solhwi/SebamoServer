@@ -37,6 +37,12 @@ namespace SebamoServer
 			return await ProcessResponse(command);
 		}
 
+		/// <summary>
+		/// '/한주끝' 명령의 경우 데이터 처리 전 기록을 가지고 있어야 한다.
+		/// 해결방법 고민해볼 것
+		/// </summary>
+		/// <param name="command"></param>
+		/// <returns></returns>
 		private async Task<string> ProcessResponse(Command command)
 		{
 			SebamoData data = null;
@@ -45,7 +51,7 @@ namespace SebamoServer
 				data = await doTask(command);
 			}
 
-			return MessageFactory.MakeMessage(command.commandType, cachedDataDictionary).ReadMessage(data);
+			return MessageFactory.MakeMessage(command, cachedDataDictionary).ReadMessage(data);
 		}
 
 		private async Task<Dictionary<string, SebamoData>> GetSebamoData(Command command)

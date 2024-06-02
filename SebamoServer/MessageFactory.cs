@@ -8,9 +8,9 @@ namespace SebamoServer
 {
 	public class MessageFactory
 	{
-		public static IMessage MakeMessage(CommandType type, Dictionary<string, SebamoData> dataDictionary)
+		public static IMessage MakeMessage(Command command, Dictionary<string, SebamoData> dataDictionary)
 		{ 
-			switch (type)
+			switch (command.commandType)
 			{
 				case CommandType.Complete:
 					return new CompleteMessage();
@@ -22,7 +22,7 @@ namespace SebamoServer
 					return new RestMessage();
 
 				case CommandType.Confirm:
-					return new ConfirmMessage();
+					return new ConfirmMessage(dataDictionary);
 
 				case CommandType.ResetWeekly:
 					return new ResetWeeklyMessage();
@@ -37,11 +37,17 @@ namespace SebamoServer
 					return new SendMoneyMessage();
 
 				case CommandType.ConfirmFee:
-					return new ConfirmFeeMessage();
+					return new ConfirmFeeMessage(command, dataDictionary);
 
 				case CommandType.UseFee:
-					return new UseFeeMessage();
 
+					if (command is NameAndFeeCommand nafCommand)
+					{
+						return new UseFeeMessage(nafCommand);
+					}
+
+					return null;
+					
 				case CommandType.ResetFee:
 					return new ResetFeeMessage();
 		}

@@ -22,6 +22,12 @@ namespace SebamoServer
 			{ GroupType.Exp, new string[] {"동현", "상훈", "지홍", "지현", "솔휘", "강욱"} },
 		};
 
+		private static Dictionary<GroupType, string> groupAccountDictionary = new Dictionary<GroupType, string>()
+		{
+			{ GroupType.Kahlua, "" },
+			{ GroupType.Exp, "카카오뱅크 79795861723" }
+		};
+
 		public static bool IsInGroup(GroupType groupType, string name)
 		{
 			if (groupMemberNameDictionary.TryGetValue(groupType, out string[] names))
@@ -44,6 +50,16 @@ namespace SebamoServer
 			}
 
 			return 0;
+		}
+
+		public static string GetAccountString(GroupType groupType)
+		{
+			if (groupAccountDictionary.TryGetValue(groupType, out string accountStr))
+			{
+				return accountStr;
+			}
+
+			return string.Empty;
 		}
 
 		public static int GetMaxWeeklyPoint(GroupType groupType)

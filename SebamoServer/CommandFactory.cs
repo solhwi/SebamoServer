@@ -90,7 +90,7 @@ namespace SebamoServer
 				case "확인":
 					return CommandType.Confirm;
 
-				case "초기화":
+				case "한주초기화":
 					return CommandType.ResetWeekly;
 
 				case "한주끝":
