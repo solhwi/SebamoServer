@@ -93,7 +93,7 @@ namespace SebamoServer
 
 		public string ReadMessage(SebamoData data)
 		{
-			return "한 주 기록만 초기화되었습니다. 누적 벌금에는 영향이 가지 않습니다.";
+			return "한 주 기록이 초기화되었습니다. 누적 벌금에는 영향이 가지 않습니다.";
 		}
 	}
 
@@ -214,10 +214,12 @@ namespace SebamoServer
 	public class UseFeeMessage : IMessage
 	{
 		private NameAndFeeCommand command;
+		private ConfirmFeeMessage confirmFeeMessage = null;
 
-		public UseFeeMessage(NameAndFeeCommand command)
+		public UseFeeMessage(NameAndFeeCommand command, Dictionary<string, SebamoData> newDataDictionary)
 		{
 			this.command = command;
+			confirmFeeMessage = new ConfirmFeeMessage(command, newDataDictionary);
 		}
 
 		public string GetFormat()
@@ -230,8 +232,16 @@ namespace SebamoServer
 			if (command == null)
 				return string.Empty;
 
+			StringBuilder sb = new StringBuilder();
+
 			string format = GetFormat();
-			return string.Format(format, command.name, command.fee, data.usedPenaltyFee);
+			string message = string.Format(format, command.name, command.fee, data.usedPenaltyFee);
+
+			sb.Append(message);
+			sb.Append(Config.ReplySeparator);
+			sb.Append(confirmFeeMessage.ReadMessage(data));
+
+			return sb.ToString();
 		}
 	}
 
@@ -250,14 +260,31 @@ namespace SebamoServer
 
 	public class EndWeeklyMessage : IMessage
 	{
+		private ConfirmMessage confirmMessage = null;
+		private ConfirmFeeMessage confirmFeeMessage = null;
+
+		public EndWeeklyMessage(Command command, Dictionary<string, SebamoData> oldDataDictionary, Dictionary<string, SebamoData> newDataDictionary)
+		{
+			confirmMessage = new ConfirmMessage(oldDataDictionary);
+			confirmFeeMessage = new ConfirmFeeMessage(command, newDataDictionary);
+		}
+
 		public string GetFormat()
 		{
-			throw new NotImplementedException();
+			return "한 주 기록이 초기화되었습니다. 누적 벌금은 위와 같습니다.";
 		}
 
 		public string ReadMessage(SebamoData data)
 		{
-			throw new NotImplementedException();
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append(confirmMessage.ReadMessage(data));
+			sb.Append(Config.ReplySeparator);
+			sb.Append(confirmFeeMessage.ReadMessage(data));
+			sb.Append(Config.ReplySeparator);
+			sb.Append(GetFormat());
+
+			return sb.ToString();
 		}
 	}
 

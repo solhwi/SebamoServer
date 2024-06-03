@@ -14,7 +14,9 @@ namespace SebamoServer
 		private SpreadSheetManager spreadSheetManager = new SpreadSheetManager();
 
 		private Dictionary<CommandType, Func<Command, Task<SebamoData>>> taskDictionary = null;
-		private Dictionary<string, SebamoData> cachedDataDictionary = new Dictionary<string, SebamoData>();
+		
+		private Dictionary<string, SebamoData> oldDataDictionary = new Dictionary<string, SebamoData>();
+		private Dictionary<string, SebamoData> newDataDictionary = new Dictionary<string, SebamoData>();
 
 		public CommandExecutor()
 		{
@@ -33,16 +35,12 @@ namespace SebamoServer
 
 		public async Task<string> MakeResponse(Command command)
 		{
-			cachedDataDictionary = await GetSebamoData(command);
+			oldDataDictionary = await GetSebamoData(command);
+			newDataDictionary.Clear();
+
 			return await ProcessResponse(command);
 		}
 
-		/// <summary>
-		/// '/한주끝' 명령의 경우 데이터 처리 전 기록을 가지고 있어야 한다.
-		/// 해결방법 고민해볼 것
-		/// </summary>
-		/// <param name="command"></param>
-		/// <returns></returns>
 		private async Task<string> ProcessResponse(Command command)
 		{
 			SebamoData data = null;
@@ -51,7 +49,7 @@ namespace SebamoServer
 				data = await doTask(command);
 			}
 
-			return MessageFactory.MakeMessage(command, cachedDataDictionary).ReadMessage(data);
+			return MessageFactory.MakeMessage(command, oldDataDictionary, newDataDictionary).ReadMessage(data);
 		}
 
 		private async Task<Dictionary<string, SebamoData>> GetSebamoData(Command command)
@@ -61,7 +59,7 @@ namespace SebamoServer
 
 		private SebamoData GetRowSebamoData(NameCommand command)
 		{
-			if (cachedDataDictionary.TryGetValue(command.name, out var value) == false)
+			if (oldDataDictionary.TryGetValue(command.name, out var value) == false)
 				return null;
 
 			return value.Clone();
@@ -71,14 +69,19 @@ namespace SebamoServer
 		{
 			if (command is NameCommand nameCommand)
 			{
-				var sebamoData = GetRowSebamoData(nameCommand);
-				if (sebamoData != null)
+				newDataDictionary = Clone(oldDataDictionary);
+
+				var rowData = GetRowSebamoData(nameCommand);
+				if (rowData != null)
 				{
-					sebamoData.AddWeeklyPoint(1);
-					await spreadSheetManager.UpdateSebamoData(command.groupType, sebamoData);
+					rowData.AddWeeklyPoint(1);
+
+					newDataDictionary[rowData.name] = rowData;
+
+					await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
 				}
 				
-				return sebamoData;
+				return rowData;
 			}
 
 			return null;
@@ -88,10 +91,15 @@ namespace SebamoServer
 		{
 			if (command is NameCommand nameCommand)
 			{
+				newDataDictionary = Clone(oldDataDictionary);
+
 				var rowData = GetRowSebamoData(nameCommand);
 				if (rowData != null)
 				{
 					rowData.AddWeeklyPoint(-1);
+
+					newDataDictionary[rowData.name] = rowData;
+
 					await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
 				}
 
@@ -105,10 +113,15 @@ namespace SebamoServer
 		{
 			if (command is NameCommand nameCommand)
 			{
+				newDataDictionary = Clone(oldDataDictionary);
+
 				var rowData = GetRowSebamoData(nameCommand);
 				if (rowData != null)
 				{
 					rowData.CompleteWeeklyPoint();
+
+					newDataDictionary[rowData.name] = rowData;
+
 					await spreadSheetManager.UpdateSebamoData(command.groupType, rowData);
 				}
 
@@ -120,10 +133,10 @@ namespace SebamoServer
 
 		private async Task<SebamoData> OnResetWeekly(Command command)
 		{
-			if (cachedDataDictionary != null)
+			if (oldDataDictionary != null)
 			{
-				var newDataDictionary = new Dictionary<string, SebamoData>();
-				foreach (var sebamoData in cachedDataDictionary.Values)
+				newDataDictionary.Clear();
+				foreach (var sebamoData in oldDataDictionary.Values)
 				{
 					var newSebamoData = sebamoData.Clone();
 					newSebamoData.ResetWeeklyPoint();
@@ -139,10 +152,10 @@ namespace SebamoServer
 
 		private async Task<SebamoData> OnEndWeekly(Command command)
 		{
-			if (cachedDataDictionary != null)
+			if (oldDataDictionary != null)
 			{
-				var newDataDictionary = new Dictionary<string, SebamoData>();
-				foreach (var sebamoData in cachedDataDictionary.Values)
+				newDataDictionary.Clear();
+				foreach (var sebamoData in oldDataDictionary.Values)
 				{
 					var newSebamoData = sebamoData.Clone();
 					newSebamoData.EndWeekly(command.groupType);
@@ -160,11 +173,15 @@ namespace SebamoServer
 		{
 			if (command is NameAndFeeCommand nameAndFeeCommand)
 			{
+				newDataDictionary = Clone(oldDataDictionary);
+
 				var rowData = GetRowSebamoData(nameAndFeeCommand);
 				if (rowData != null)
 				{
 					var newSebamoData = rowData.Clone();
 					newSebamoData.SendMoney(nameAndFeeCommand.fee);
+
+					newDataDictionary[newSebamoData.name] = newSebamoData;
 
 					await spreadSheetManager.UpdateSebamoData(command.groupType, newSebamoData);
 
@@ -179,11 +196,15 @@ namespace SebamoServer
 		{
 			if (command is NameAndFeeCommand nameAndFeeCommand)
 			{
+				newDataDictionary = Clone(oldDataDictionary);
+
 				var rowData = GetRowSebamoData(nameAndFeeCommand);
 				if (rowData != null)
 				{
 					var newSebamoData = rowData.Clone();
 					newSebamoData.UsePenaltyFee(nameAndFeeCommand.fee);
+
+					newDataDictionary[newSebamoData.name] = newSebamoData;
 
 					await spreadSheetManager.UpdateSebamoData(command.groupType, newSebamoData);
 
@@ -196,10 +217,10 @@ namespace SebamoServer
 
 		private async Task<SebamoData> OnResetFee(Command command)
 		{
-			if (cachedDataDictionary != null)
+			if (oldDataDictionary != null)
 			{
-				var newDataDictionary = new Dictionary<string, SebamoData>();
-				foreach (var sebamoData in cachedDataDictionary.Values)
+				newDataDictionary.Clear();
+				foreach (var sebamoData in oldDataDictionary.Values)
 				{
 					var newSebamoData = sebamoData.Clone();
 					newSebamoData.ResetPenaltyFee();
@@ -212,5 +233,17 @@ namespace SebamoServer
 
 			return null;
 		}
+
+		private Dictionary<string, SebamoData> Clone(Dictionary<string, SebamoData> src)
+		{
+			var dic = new Dictionary<string, SebamoData>();
+
+            foreach (var iter in src)
+            {
+				dic.Add(iter.Key, iter.Value);
+            }
+
+			return dic;
+        }
 	}
 }

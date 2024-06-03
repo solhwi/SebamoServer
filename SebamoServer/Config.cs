@@ -10,6 +10,8 @@ namespace SebamoServer
 	{
 		public const int MaxWeeklyPoint = 4;
 
+		public const char ReplySeparator = '|';
+
 		private static readonly Dictionary<GroupType, int[]> feeDictionary = new Dictionary<GroupType, int[]>()
 		{
 			{ GroupType.Kahlua, new int[] { 3000, 5000, 10000, 30000 } },
@@ -24,7 +26,7 @@ namespace SebamoServer
 
 		private static Dictionary<GroupType, string> groupAccountDictionary = new Dictionary<GroupType, string>()
 		{
-			{ GroupType.Kahlua, "" },
+			{ GroupType.Kahlua, "케이뱅크 100191000123" },
 			{ GroupType.Exp, "카카오뱅크 79795861723" }
 		};
 
