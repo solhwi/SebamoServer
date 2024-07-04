@@ -10,7 +10,7 @@ namespace SebamoServer
 {
 	/// <summary>
 	/// 입력받은 http request에 맞는 커맨드를 생성해냄
-	/// ex. http://localhost.com:8000/Kaluha?p1=완료&p2=유진
+	/// ex. http://localhost:8000/Kaluha?p1=완료&p2=유진
 	/// </summary>z
 	internal class CommandFactory
 	{
