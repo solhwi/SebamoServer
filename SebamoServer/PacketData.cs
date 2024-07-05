@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace SebamoServer
 {
-
 	[System.Serializable]
-	public class PlayerPacketData : PacketData
+	public class MyPlayerPacketData : PacketData
 	{
-		public PlayerSyncPacketData syncData;
+		public PlayerPacketData playerData;
 
 		public string[] hasItems; // 가진 아이템
 		public int[] hasItemCounts; // 가진 아이템 개수
@@ -19,17 +18,14 @@ namespace SebamoServer
 	}
 
 	[System.Serializable]
-	public class PlayerSyncPacketData : PacketData
+	public class PlayerPacketData : PacketData
 	{
-		public bool isMine;
-
 		public string playerName; // 플레이어 이름
 
 		public int playerTileIndex; // 현재 타일 인덱스
 		public int hasDiceCount; // 가진 주사위 개수
 
 		public string[] equippedItems; // 장착 중인 아이템
-
 	}
 
 	[System.Serializable]

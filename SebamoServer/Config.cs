@@ -30,6 +30,17 @@ namespace SebamoServer
 			{ GroupType.Exp, "카카오뱅크 79795861723" }
 		};
 
+		private static Dictionary<GroupType, string> groupDataPathDictionary = new Dictionary<GroupType, string>()
+		{
+			{ GroupType.Kahlua, "Resources/Kahlua" },
+			{ GroupType.Exp,  "Resources/Exp" },
+		};
+
+		public static string GetDataPath(GroupType groupType)
+		{
+			return groupDataPathDictionary[groupType];
+		}
+
 		public static bool IsInGroup(GroupType groupType, string name)
 		{
 			if (groupMemberNameDictionary.TryGetValue(groupType, out string[] names))
