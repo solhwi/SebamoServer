@@ -21,17 +21,14 @@ namespace SebamoServer
 			messengerListener.Start();
 			gameListener.Start();
 
-			var listenTask = Listen();
-			listenTask.GetAwaiter().GetResult();
+			var messengerTask = messengerListener.Listen();
+			var gameTask = gameListener.Listen();
+
+			messengerTask.GetAwaiter().GetResult();
+			gameTask.GetAwaiter().GetResult();
 
 			messengerListener.Close();
 			gameListener.Close();
-		}
-
-		private static async Task Listen()
-		{
-			await messengerListener.Listen();
-			await gameListener.Listen();
 		}
 	}
 }

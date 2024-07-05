@@ -9,15 +9,15 @@ namespace SebamoServer
 {
 	internal class Listener
 	{
-		private static HttpListener listener = new HttpListener();
-		private const string serverUrl = "http://localhost:";
+		private HttpListener listener = new HttpListener();
+		private const string serverUrl = "http://localhost";
 
-		private static int requestCount = 0;
-		private static bool isRunning = false;
+		private int requestCount = 0;
+		private bool isRunning = false;
 
 		public Listener(int port)
 		{
-			listener.Prefixes.Add(serverUrl + port + '/');
+			listener.Prefixes.Add($"{serverUrl}:{port}/");
 		}
 
 		public void Start()

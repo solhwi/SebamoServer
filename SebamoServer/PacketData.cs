@@ -18,8 +18,16 @@ namespace SebamoServer
 	}
 
 	[System.Serializable]
+	public class PlayerPacketDataCollection : PacketData
+	{
+		public PlayerPacketData[] playerDatas = null;
+	}
+
+
+	[System.Serializable]
 	public class PlayerPacketData : PacketData
 	{
+		public string playerGroup; // 플레이어 그룹
 		public string playerName; // 플레이어 이름
 
 		public int playerTileIndex; // 현재 타일 인덱스

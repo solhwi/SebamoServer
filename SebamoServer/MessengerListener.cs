@@ -9,7 +9,7 @@ namespace SebamoServer
 {
 	internal class MessengerListener : Listener
 	{
-		private static CommandExecutor commandExecutor = new CommandExecutor();
+		private CommandExecutor commandExecutor = new CommandExecutor();
 
 		public MessengerListener(int port) : base(port)
 		{

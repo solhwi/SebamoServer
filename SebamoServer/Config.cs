@@ -32,9 +32,23 @@ namespace SebamoServer
 
 		private static Dictionary<GroupType, string> groupDataPathDictionary = new Dictionary<GroupType, string>()
 		{
-			{ GroupType.Kahlua, "Resources/Kahlua" },
-			{ GroupType.Exp,  "Resources/Exp" },
+			{ GroupType.Kahlua, $"{Directory.GetCurrentDirectory()}/Resources/Kahlua" },
+			{ GroupType.Exp,  $"{Directory.GetCurrentDirectory()}/Resources/Exp" },
 		};
+
+		public static IEnumerable<string> GetNamesWithoutMe(GroupType groupType, string myName)
+		{
+			if (groupMemberNameDictionary.TryGetValue(groupType, out string[] names))
+			{ 
+				foreach(var name in names)
+				{
+					if (name == myName)
+						continue;
+
+					yield return name;
+				}
+			}
+		}
 
 		public static string GetDataPath(GroupType groupType)
 		{
