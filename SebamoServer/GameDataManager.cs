@@ -11,12 +11,6 @@ namespace SebamoServer
 {
     internal class GameDataManager
     {
-        JsonSerializerOptions serializeOption = new JsonSerializerOptions()
-        {
-			PropertyNameCaseInsensitive = true,
-			Encoder = JavaScriptEncoder.Default
-	};
-
         public void Save(MyPlayerPacketData packetData)
         {
             var groupType = GetGroupType(packetData.playerData.playerGroup);
@@ -28,12 +22,32 @@ namespace SebamoServer
             File.WriteAllText(dataPath, jsonData);
         }
 
+        private void TryInitializeDataFile(string dataPath, GroupType groupType, string name)
+        {
+			if (File.Exists(dataPath) == false)
+            {
+                string jsonData = GetDefaultMyPlayerPacketData(groupType, name);
+
+				File.WriteAllText(dataPath, jsonData);
+			}
+		}
+
+        private string GetDefaultMyPlayerPacketData(GroupType groupType, string name)
+        {
+            var data = new MyPlayerPacketData();
+            data.playerData = new PlayerPacketData();
+
+			data.playerData.playerName = name;
+            data.playerData.playerGroup = groupType.ToString();
+
+            return JsonConvert.SerializeObject(data);
+		}
+
         public MyPlayerPacketData LoadMyPacketData(GroupType groupType, string playerName)
         {
 			string dataPath = GetDataPath(groupType, playerName);
 
-            if (File.Exists(dataPath) == false)
-				File.Create(dataPath).Close();
+			TryInitializeDataFile(dataPath, groupType, playerName);
 
 			string jsonData = File.ReadAllText(dataPath);
             if (jsonData == string.Empty)
@@ -55,15 +69,17 @@ namespace SebamoServer
 
 				string dataPath = GetDataPath(groupType, name);
 
-				if (File.Exists(dataPath) == false)
-					File.Create(dataPath).Close();
+				TryInitializeDataFile(dataPath, groupType, name);
 
 				string jsonData = File.ReadAllText(dataPath);
                 if (jsonData == string.Empty)
                     continue;
 
-                var packetData = JsonConvert.DeserializeObject<PlayerPacketData>(jsonData);
-                collection.playerDatas[i] = packetData;
+                var packetData = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
+                if (packetData == null)
+                    continue;
+
+                collection.playerDatas[i] = packetData.playerData;
 			}
 
             return collection;
