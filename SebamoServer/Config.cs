@@ -50,7 +50,7 @@ namespace SebamoServer
 			}
 		}
 
-		public static string GetDataPath(GroupType groupType)
+		public static string GetDataRootPath(GroupType groupType)
 		{
 			return groupDataPathDictionary[groupType];
 		}

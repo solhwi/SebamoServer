@@ -63,9 +63,13 @@ namespace SebamoServer
 			{
 				return dataManager.LoadMyPacketData(groupType, userName);
 			}
-			else if(commandType == "Other")
+			else if (commandType == "Other")
 			{
 				return dataManager.LoadOtherPacket(groupType, userName);
+			}
+			else if (commandType == "Tile")
+			{
+				return dataManager.LoadTilePacket(groupType);
 			}
 
 			return null;

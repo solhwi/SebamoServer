@@ -16,7 +16,7 @@ namespace SebamoServer
             var groupType = GetGroupType(packetData.playerData.playerGroup);
             string playerName = packetData.playerData.playerName;
 
-            string dataPath = GetDataPath(groupType, playerName);
+            string dataPath = GetUserDataPath(groupType, playerName);
             string jsonData = JsonConvert.SerializeObject(packetData);
 
             File.WriteAllText(dataPath, jsonData);
@@ -26,13 +26,23 @@ namespace SebamoServer
         {
 			if (File.Exists(dataPath) == false)
             {
-                string jsonData = GetDefaultMyPlayerPacketData(groupType, name);
+                string jsonData = GetDefaultPlayerPacketData(groupType, name);
 
 				File.WriteAllText(dataPath, jsonData);
 			}
 		}
 
-        private string GetDefaultMyPlayerPacketData(GroupType groupType, string name)
+        private void TryInitializeTileDataFile(string dataPath, GroupType groupType)
+        {
+			if (File.Exists(dataPath) == false)
+			{
+				string jsonData = GetDefaultTilePacketData();
+
+				File.WriteAllText(dataPath, jsonData);
+			}
+		}
+
+        private string GetDefaultPlayerPacketData(GroupType groupType, string name)
         {
             var data = new MyPlayerPacketData();
             data.playerData = new PlayerPacketData();
@@ -43,9 +53,19 @@ namespace SebamoServer
             return JsonConvert.SerializeObject(data);
 		}
 
-        public MyPlayerPacketData LoadMyPacketData(GroupType groupType, string playerName)
+        private string GetDefaultTilePacketData()
         {
-			string dataPath = GetDataPath(groupType, playerName);
+            var data = new TilePacketData();
+
+			data.tileItemIndexes = null;
+			data.tileItemCodes = null;
+
+			return JsonConvert.SerializeObject(data);
+		}
+
+		public MyPlayerPacketData LoadMyPacketData(GroupType groupType, string playerName)
+        {
+			string dataPath = GetUserDataPath(groupType, playerName);
 
 			TryInitializeDataFile(dataPath, groupType, playerName);
 
@@ -67,7 +87,7 @@ namespace SebamoServer
             {
                 string name = names[i];
 
-				string dataPath = GetDataPath(groupType, name);
+				string dataPath = GetUserDataPath(groupType, name);
 
 				TryInitializeDataFile(dataPath, groupType, name);
 
@@ -85,11 +105,30 @@ namespace SebamoServer
             return collection;
 		}
 
-        private string GetDataPath(GroupType groupType, string name)
+        public TilePacketData LoadTilePacket(GroupType groupType)
         {
-            string dataPath = $"{Config.GetDataPath(groupType)}/{name}.json";
+            string dataPath = GetTileDataPath(groupType);
+
+            TryInitializeTileDataFile(dataPath, groupType);
+
+			string jsonData = File.ReadAllText(dataPath);
+			if (jsonData == string.Empty)
+				return null;
+
+			return JsonConvert.DeserializeObject<TilePacketData>(jsonData);
+		}
+
+		private string GetUserDataPath(GroupType groupType, string name)
+        {
+            string dataPath = $"{Config.GetDataRootPath(groupType)}/{name}.json";
             return dataPath;
         }
+
+        private string GetTileDataPath(GroupType groupType)
+        {
+			string dataPath = $"{Config.GetDataRootPath(groupType)}/tile.json";
+			return dataPath;
+		}
 
 		private static GroupType GetGroupType(string groupName)
 		{

@@ -138,7 +138,7 @@ namespace SebamoServer
 	internal class SpreadSheetManager
 	{
 		private readonly string BaseGetUrl = "https://docs.google.com/spreadsheets/d/1bc9q-co0H9_nmo-AuQtN5dYINCCB-Qv1o42yH3D3vTk/export?format=csv&gid=";
-		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbzal9aux1EKgIC0d1hYc4FVYF_8Hd7rVkuz3LlErwLc8QReSj-HLhMtDQpqRMu6H6Sdvw/exec";
+		private readonly string BasePostUrl = "https://script.google.com/macros/s/AKfycbwYTQb-Du53Oikr5ayTuzJZzrI_zIeZBYr5xhoKFSiM6MmyvO9kfb605QV_ZNdjPNuHmA/exec";
 		private Dictionary<GroupType, string> groupGidDictionary = new Dictionary<GroupType, string>()
 		{
 			{ GroupType.Kahlua, "0"}, 

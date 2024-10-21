@@ -16,6 +16,7 @@ namespace BotClient
 			"/Kahlua?p1=휴식&p2=유진",
 			"/Kahlua?p1=완료복원&p2=유진",
 			"/Kahlua?p1=완료복원&p2=유진",
+			"/Kahlua?p1=한주끝"
 		};
 
 		public static async Task Main(string[] args)

@@ -30,11 +30,22 @@ namespace SebamoServer
 		public string playerGroup; // 플레이어 그룹
 		public string playerName; // 플레이어 이름
 
-		public int playerTileIndex; // 현재 타일 인덱스
+		public int playerTileOrder; // 현재 위치한 타일 순서
 		public int hasDiceCount; // 가진 주사위 개수
 
+		public string profileComment; // 프로필 코멘트
+
 		public string[] equippedItems; // 장착 중인 아이템
+		public string[] appliedProfileItems; // 프로필 아이템
 	}
+
+	[System.Serializable]
+	public class TilePacketData : PacketData
+	{
+		public int[] tileItemIndexes = null;
+		public string[] tileItemCodes = null;
+	}
+
 
 	[System.Serializable]
 	public class PacketData
