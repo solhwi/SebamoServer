@@ -44,8 +44,12 @@ namespace SebamoServer
 
         private string GetDefaultPlayerPacketData(GroupType groupType, string name)
         {
-            var data = new MyPlayerPacketData();
-            data.playerData = new PlayerPacketData();
+			string defaultJsonPath = $"{Config.ScriptRootPath}/DefaultPlayerData.json";
+			string jsonData = File.ReadAllText(defaultJsonPath);
+
+			var data = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
+            if (data == null)
+                return string.Empty;
 
 			data.playerData.playerName = name;
             data.playerData.playerGroup = groupType.ToString();
@@ -55,12 +59,8 @@ namespace SebamoServer
 
         private string GetDefaultTilePacketData()
         {
-            var data = new TilePacketData();
-
-			data.tileItemIndexes = null;
-			data.tileItemCodes = null;
-
-			return JsonConvert.SerializeObject(data);
+            string defaultJsonPath = $"{Config.ScriptRootPath}/DefaultTileData.json";
+            return File.ReadAllText(defaultJsonPath);
 		}
 
 		public MyPlayerPacketData LoadMyPacketData(GroupType groupType, string playerName)
