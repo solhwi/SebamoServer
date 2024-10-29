@@ -27,9 +27,6 @@ namespace SebamoServer
 	[System.Serializable]
 	public class PlayerPacketData : PacketData
 	{
-		public string playerGroup; // 플레이어 그룹
-		public string playerName; // 플레이어 이름
-
 		public int playerTileOrder; // 현재 위치한 타일 순서
 		public int hasDiceCount; // 가진 주사위 개수
 
@@ -50,6 +47,14 @@ namespace SebamoServer
 	[System.Serializable]
 	public class PacketData
 	{
+		public int type; // 패킷 타입
 
+		public string playerGroup; // 플레이어 그룹
+		public string playerName; // 플레이어 이름
+
+		public bool IsTile()
+		{
+			return this.type == 2;
+		}
 	}
 }

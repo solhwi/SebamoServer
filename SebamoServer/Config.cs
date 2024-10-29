@@ -36,7 +36,7 @@ namespace SebamoServer
 			{ GroupType.Exp,  $"{Directory.GetCurrentDirectory()}/Resources/Exp" },
 		};
 
-		public static string ScriptRootPath = $"{Directory.GetCurrentDirectory()}/../../../../SebamoScript";
+		public static string ScriptRootPath = $"../../../../../SebamoScript";
 
 		public static IEnumerable<string> GetNamesWithoutMe(GroupType groupType, string myName)
 		{

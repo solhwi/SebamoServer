@@ -11,18 +11,26 @@ namespace SebamoServer
 {
     internal class GameDataManager
     {
-        public void Save(MyPlayerPacketData packetData)
+        public void Save(PacketData packetData)
         {
-            var groupType = GetGroupType(packetData.playerData.playerGroup);
-            string playerName = packetData.playerData.playerName;
+            var groupType = GetGroupType(packetData.playerGroup);
+            string playerName = packetData.playerName;
+			string dataPath = string.Empty;
 
-            string dataPath = GetUserDataPath(groupType, playerName);
-            string jsonData = JsonConvert.SerializeObject(packetData);
+			if (packetData is MyPlayerPacketData)
+			{
+				dataPath = GetUserDataPath(groupType, playerName);
+			}
+			else if (packetData is TilePacketData)
+			{
+				dataPath = GetTileDataPath(groupType);
+			}
 
+			string jsonData = JsonConvert.SerializeObject(packetData);
             File.WriteAllText(dataPath, jsonData);
         }
 
-        private void TryInitializeDataFile(string dataPath, GroupType groupType, string name)
+		private void TryInitializeDataFile(string dataPath, GroupType groupType, string name)
         {
 			if (File.Exists(dataPath) == false)
             {

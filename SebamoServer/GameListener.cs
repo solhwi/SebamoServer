@@ -79,9 +79,18 @@ namespace SebamoServer
 		{
 			string jsonData = GetPostJsonData(request);
 
-			var packetData = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
+			PacketData packetData = JsonConvert.DeserializeObject<PacketData>(jsonData);
 			if (packetData == null)
 				return null;
+
+			if (packetData.IsTile())
+			{
+				packetData = JsonConvert.DeserializeObject<TilePacketData>(jsonData);
+			}
+			else
+			{
+				packetData = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
+			}
 
 			dataManager.Save(packetData);
 			return packetData;
