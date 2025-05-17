@@ -10,7 +10,7 @@ namespace SebamoServer
 	internal class Listener
 	{
 		private HttpListener listener = new HttpListener();
-		private const string serverUrl = "http://+";
+		private const string serverUrl = "http://localhost";
 
 		private int requestCount = 0;
 		private bool isRunning = false;
