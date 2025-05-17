@@ -65,6 +65,8 @@ namespace SebamoServer
 
 		private async Task ResponseProcess(HttpListenerResponse response, string responseMessage)
 		{
+			Console.WriteLine(responseMessage);
+
 			byte[] data = Encoding.UTF8.GetBytes(responseMessage);
 
 			response.ContentEncoding = Encoding.UTF8;

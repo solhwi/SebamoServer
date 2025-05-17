@@ -154,11 +154,11 @@ namespace SebamoServer
 					if (jsonData == string.Empty)
 						continue;
 
-					var packetData = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
+					var packetData = JsonConvert.DeserializeObject<PlayerPacketData>(jsonData);
 					if (packetData == null)
 						continue;
 
-					collection.playerDatas[i] = packetData.playerData;
+					collection.playerDatas[i] = packetData;
 				}
 
 				return collection;
