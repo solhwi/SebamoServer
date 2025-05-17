@@ -33,7 +33,7 @@ namespace SebamoServer
 				if (sebamoDictionary.TryGetValue(name, out data))
 				{
 					packet.playerData.hasDiceCount += data.GetNewDiceCount();
-					Save(myPacket);
+					Save(packet);
 				}
 			}
 		}
