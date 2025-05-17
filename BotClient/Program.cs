@@ -11,12 +11,8 @@ namespace BotClient
 
 		private static List<string> testCaseList = new List<string>()
 		{
-			"/Kahlua?p1=완료&p2=유진",
-			"/Kahlua?p1=완료복원&p2=유진",
-			"/Kahlua?p1=휴식&p2=유진",
-			"/Kahlua?p1=완료복원&p2=유진",
-			"/Kahlua?p1=완료복원&p2=유진",
-			"/Kahlua?p1=한주끝"
+			"/Exp?p1=/완료&p2=솔휘",
+			"/Exp?p1=/한주끝"
 		};
 
 		public static async Task Main(string[] args)
