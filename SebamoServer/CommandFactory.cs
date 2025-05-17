@@ -78,37 +78,37 @@ namespace SebamoServer
 		{
 			switch (commandType)
 			{
-				case "완료":
+				case "/완료":
 					return CommandType.Complete;
 
-				case "완료복원":
+				case "/완료복원":
 					return CommandType.RollbackComplete;
 
-				case "휴식":
+				case "/휴식":
 					return CommandType.Rest;
 
-				case "확인":
+				case "/확인":
 					return CommandType.Confirm;
 
-				case "한주초기화":
+				case "/한주초기화":
 					return CommandType.ResetWeekly;
 
-				case "한주끝":
+				case "/한주끝":
 					return CommandType.EndWeekly;
 
-				case "도움말":
+				case "/도움말":
 					return CommandType.Help;
 
-				case "송금":
+				case "/송금":
 					return CommandType.SendMoney;
 
-				case "벌금현황":
+				case "/벌금현황":
 					return CommandType.ConfirmFee;
 
-				case "벌금사용":
+				case "/벌금사용":
 					return CommandType.UseFee;
 
-				case "벌금초기화":
+				case "/벌금초기화":
 					return CommandType.ResetFee;
 			}
 
