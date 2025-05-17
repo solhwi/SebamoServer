@@ -12,8 +12,6 @@ namespace SebamoServer
 {
 	internal class GameListener : Listener
 	{
-		private static GameDataManager dataManager = new GameDataManager();
-
 		public GameListener(int port) : base(port)
 		{
 
@@ -61,15 +59,15 @@ namespace SebamoServer
 			string commandType = commandParameters[1];
 			if (commandType == "My")
 			{
-				return dataManager.LoadMyPacketData(groupType, userName);
+				return GameDataManager.LoadMyPacketData(groupType, userName);
 			}
 			else if (commandType == "Other")
 			{
-				return dataManager.LoadOtherPacket(groupType, userName);
+				return GameDataManager.LoadOtherPacket(groupType, userName);
 			}
 			else if (commandType == "Tile")
 			{
-				return dataManager.LoadTilePacket(groupType);
+				return GameDataManager.LoadTilePacket(groupType);
 			}
 
 			return null;
@@ -92,7 +90,7 @@ namespace SebamoServer
 				packetData = JsonConvert.DeserializeObject<MyPlayerPacketData>(jsonData);
 			}
 
-			dataManager.Save(packetData);
+			GameDataManager.Save(packetData);
 			return packetData;
 		}
 

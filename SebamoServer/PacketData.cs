@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 namespace SebamoServer
 {
 	[System.Serializable]
+	public class PlayerSaveData
+	{
+		public MyPlayerPacketData data;
+		public List<string> nameList;
+	}
+
+	[System.Serializable]
 	public class MyPlayerPacketData : PacketData
 	{
 		public PlayerPacketData playerData;

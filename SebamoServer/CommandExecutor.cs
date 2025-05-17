@@ -163,6 +163,7 @@ namespace SebamoServer
 					newDataDictionary.Add(newSebamoData.name, newSebamoData);
 				}
 
+				GameDataManager.EndWeekly(command.groupType, oldDataDictionary);
 				await spreadSheetManager.UpdateSebamoData(command.groupType, newDataDictionary);
 			}
 

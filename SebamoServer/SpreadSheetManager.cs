@@ -80,6 +80,16 @@ namespace SebamoServer
 			weeklyPoint = 0;
 		}
 
+		public int GetNewDiceCount()
+		{
+			if (weeklyPoint == 4)
+			{
+				return 5;
+			}
+
+			return weeklyPoint;
+		}
+
 		public void SendMoney(int money)
 		{
 			if (penaltyFee - money > 0)
@@ -225,6 +235,7 @@ namespace SebamoServer
 			foreach(var sheet in sheetList)
 			{
 				var data = new SebamoData();
+
 
 				data.name = (string)sheet["name"];
 				data.weeklyPoint = (int)sheet["weeklyPoint"];

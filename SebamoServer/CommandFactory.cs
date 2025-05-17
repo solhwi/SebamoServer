@@ -142,7 +142,10 @@ namespace SebamoServer
 			foreach (var p1 in query.Split('&'))
 			{
 				string[] p2 = p1.Split('=');
-				yield return HttpUtility.UrlDecode(p2[1], Encoding.UTF8);
+				if (p2.Length == 2)
+				{
+					yield return HttpUtility.UrlDecode(p2[1], Encoding.UTF8);
+				}
 			}
 		}
 	}

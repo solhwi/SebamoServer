@@ -57,6 +57,7 @@ namespace SebamoServer
 			Console.WriteLine(request.HttpMethod);
 			Console.WriteLine(request.UserHostName);
 			Console.WriteLine(request.UserAgent);
+			Console.WriteLine(request.UserHostAddress);
 			Console.WriteLine();
 
 			return string.Empty; 
