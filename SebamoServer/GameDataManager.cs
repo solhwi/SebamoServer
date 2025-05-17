@@ -26,15 +26,15 @@ namespace SebamoServer
 				Save(myPacket);
 			}
 
-			var otherPackets = LoadOtherPacket(groupType, firstPlayerName);
-			foreach (var otherPacket in otherPackets.playerDatas)
+			var names = Config.GetNamesWithoutMe(groupType, firstPlayerName).ToArray();
+			foreach (var name in names)
 			{
-				if (sebamoDictionary.TryGetValue(otherPacket.playerName, out data))
+				var packet = LoadMyPacketData(groupType, name);
+				if (sebamoDictionary.TryGetValue(name, out data))
 				{
-					otherPacket.hasDiceCount += data.GetNewDiceCount();
+					packet.playerData.hasDiceCount += data.GetNewDiceCount();
+					Save(myPacket);
 				}
-
-				Save(otherPacket);
 			}
 		}
 
@@ -50,7 +50,7 @@ namespace SebamoServer
 				{
 					dataPath = GetTileDataPath(groupType);
 				}
-				else if (packetData is PlayerPacketData || packetData is MyPlayerPacketData)
+				else if (packetData is MyPlayerPacketData)
 				{
 					dataPath = GetUserDataPath(groupType, playerName);
 				}
