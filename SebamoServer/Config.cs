@@ -10,6 +10,8 @@ namespace SebamoServer
 	{
 		public const int MaxWeeklyPoint = 4;
 
+		public const string LineSeparator = "&gn";
+		public const string TrimSeparator = "&gs";
 		public const char ReplySeparator = '|';
 
 		private static readonly Dictionary<GroupType, int[]> feeDictionary = new Dictionary<GroupType, int[]>()

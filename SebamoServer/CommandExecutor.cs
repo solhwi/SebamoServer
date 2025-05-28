@@ -49,7 +49,10 @@ namespace SebamoServer
 				data = await doTask(command);
 			}
 
-			return MessageFactory.MakeMessage(command, oldDataDictionary, newDataDictionary).ReadMessage(data);
+			return MessageFactory.MakeMessage(command, oldDataDictionary, newDataDictionary)
+				.ReadMessage(data)
+				.Replace(" ", Config.TrimSeparator)
+				.Replace("\n", Config.LineSeparator);
 		}
 
 		private async Task<Dictionary<string, SebamoData>> GetSebamoData(Command command)
